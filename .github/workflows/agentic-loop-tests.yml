@@ -2,9 +2,11 @@ name: Agentic Loop Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -33,4 +35,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run agentic loop tests
-        run: pytest -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}/agentic-loop
+        run: python -m pytest -v
