@@ -1,0 +1,9 @@
+{
+  "staleness_threshold_seconds": 1800,
+  "staleness_threshold_minutes": 30,
+  "recent_checkpoint_age_seconds": 1740,
+  "recent_checkpoint_decision": "resume",
+  "stale_checkpoint_age_seconds": 1860,
+  "stale_checkpoint_decision": "fresh",
+  "missing_checkpoint_decision": "fresh"
+}
