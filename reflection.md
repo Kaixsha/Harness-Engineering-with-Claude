@@ -316,3 +316,164 @@ The GitHub Actions workflow is:
 `.github/workflows/claude-harness-tests.yml`
 
 The automated suite verifies configuration behavior across the harness rather than relying only on manual inspection of individual configuration files.
+
+## System 4: Layer 3 Orchestration
+
+### Tiered State Architecture
+
+The Layer 3 orchestration system is implemented under:
+
+`orchestration/`
+
+The system separates operational information into hot, warm, and cold state.
+
+Cold-state defect history is managed in:
+
+`orchestration/src/defect_store.py`
+
+Warm and hot state are managed in:
+
+`orchestration/src/state.py`
+
+The main orchestration logic is implemented in:
+
+`orchestration/src/orchestrator.py`
+
+This separation keeps the active working state compact while allowing a larger defect history to remain available through SQL-backed cold storage.
+
+### SQL-Filtered Defect Retrieval
+
+The cold-state demonstration contained:
+
+**6 defects**
+
+The run selected only:
+
+**2 defects**
+
+for `SHIFT-A`.
+
+The selected defect IDs were:
+
+- `DEF-1001`
+- `DEF-1002`
+
+The filtering logic is implemented by `get_shift_defects()` in:
+
+`orchestration/src/defect_store.py`
+
+The SQL query filters by `shift_id` and active statuses instead of loading the complete defect history as the active shift context.
+
+The resulting evidence is recorded under run:
+
+`orchestration-run-001`
+
+and generated in:
+
+`orchestration/artifacts/shift-run-001.json`
+
+### Hot-State Budget
+
+The generated hot-state file is:
+
+`orchestration/state/hot_state.json`
+
+The successful run measured the hot-state file at:
+
+**144 bytes**
+
+The project budget is approximately:
+
+**5 KB**
+
+The run reported:
+
+`Hot state within 5 KB budget: True`
+
+The hot state intentionally contains only information required for active orchestration, such as the shift identifier, checkpoint, current status, and active defect identifiers.
+
+This avoids copying the complete cold-state defect history into the active state.
+
+### Crash Recovery
+
+Crash-recovery logic is implemented in:
+
+`orchestration/src/recovery.py`
+
+The configured staleness threshold is:
+
+`STALE_AFTER_SECONDS = 1800`
+
+This corresponds to **30 minutes**.
+
+The successful evidence run demonstrated two recovery paths.
+
+A recent checkpoint resulted in:
+
+`resume`
+
+A stale checkpoint resulted in:
+
+`fresh`
+
+Therefore, an existing checkpoint is resumed while it remains within the configured threshold. Once the checkpoint exceeds the threshold, orchestration starts fresh.
+
+The recovery evidence is generated in:
+
+`orchestration/artifacts/recovery-evidence.json`
+
+### Forked Investigation Isolation
+
+Forking logic is implemented by `fork_state()` in:
+
+`orchestration/src/state.py`
+
+Two competing investigation hypotheses are created through `investigate_hypotheses()` in:
+
+`orchestration/src/orchestrator.py`
+
+Fork A investigates a recent deployment regression hypothesis.
+
+Fork B investigates a dependent-service instability hypothesis.
+
+The evidence run reported:
+
+`Main state unchanged by forks: True`
+
+and:
+
+`Fork scratchpads isolated: True`
+
+This demonstrates that exploratory investigation state remains separated from the primary operational state. Notes added during one investigation do not automatically become part of the main state or the competing fork.
+
+Fork evidence is generated in:
+
+`orchestration/artifacts/fork-evidence.json`
+
+### Automated Verification
+
+The System 4 automated test suite reported:
+
+**33 passing tests**
+
+The tests verify:
+
+- SQL-filtered defect retrieval
+- exclusion of closed defects
+- exclusion of unrelated shifts
+- hot-state construction
+- hot-state size limits
+- warm-state summaries
+- recent checkpoint recovery
+- stale checkpoint recovery
+- exact staleness-boundary behavior
+- fork creation
+- fork scratchpads
+- main-state isolation
+- generated orchestration evidence
+
+The GitHub Actions workflow is:
+
+`.github/workflows/orchestration-tests.yml`
+
+The automated suite verifies recovery boundaries and fork isolation across multiple conditions, which could not be established reliably by inspecting only one successful run.
