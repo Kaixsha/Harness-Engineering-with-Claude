@@ -1,0 +1,63 @@
+name: Context Strategy Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: context-strategy
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run context strategy tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/context-strategy
+        run: python -m pytest -v
+
+      - name: Generate context strategy evidence
+        env:
+          PYTHONPATH: ${{ github.workspace }}/context-strategy
+        run: python -m src.generate_artifacts
+
+      - name: Display budget evidence
+        run: cat artifacts/budget.json
+
+      - name: Display full evaluation
+        run: cat artifacts/evaluation-full.json
+
+      - name: Display control evaluation
+        run: cat artifacts/evaluation-control.json
+
+      - name: Display evaluation comparison
+        run: cat artifacts/evaluation-comparison.json
+
+      - name: Upload context strategy evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: context-strategy-evidence
+          path: context-strategy/artifacts/
