@@ -1,0 +1,70 @@
+name: Orchestration Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: orchestration
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run orchestration tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/orchestration
+        run: python -m pytest -v
+
+      - name: Generate orchestration evidence
+        env:
+          PYTHONPATH: ${{ github.workspace }}/orchestration
+        run: python -m src.generate_artifacts
+
+      - name: Display shift run evidence
+        run: cat artifacts/shift-run-001.json
+
+      - name: Display recovery evidence
+        run: cat artifacts/recovery-evidence.json
+
+      - name: Display fork evidence
+        run: cat artifacts/fork-evidence.json
+
+      - name: Display hot state
+        run: cat state/hot_state.json
+
+      - name: Display hot state file size
+        run: |
+          echo "Hot state file size:"
+          wc -c state/hot_state.json
+
+      - name: Upload orchestration evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestration-evidence
+          path: |
+            orchestration/artifacts/
+            orchestration/state/hot_state.json
