@@ -1,0 +1,24 @@
+{
+  "run_id": "orchestration-run-001",
+  "shift_id": "SHIFT-A",
+  "query_strategy": "SQL-filtered by shift_id and active status",
+  "total_defects_in_cold_state": 6,
+  "selected_defect_count": 2,
+  "selected_defect_ids": [
+    "DEF-1001",
+    "DEF-1002"
+  ],
+  "recovery_decision": "resume",
+  "hot_state_size_bytes": 120,
+  "hot_state_file_size_bytes": 144,
+  "hot_state_within_budget": true,
+  "warm_state": {
+    "shift_id": "SHIFT-A",
+    "active_defect_count": 2,
+    "components": [
+      "api",
+      "database"
+    ],
+    "summary": "2 active defects selected for SHIFT-A."
+  }
+}
