@@ -1,0 +1,65 @@
+{
+  "run_id": "agentic-loop-run-001",
+  "claims": [
+    {
+      "claim_id": "CLM-2001",
+      "decision": "route",
+      "reason": "eligible_for_standard_routing",
+      "trace": [
+        {
+          "turn": 1,
+          "stop_reason": "tool_use"
+        },
+        {
+          "turn": 2,
+          "stop_reason": "end_turn"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLM-2002",
+      "decision": "escalate",
+      "reason": "amount_above_threshold",
+      "trace": [
+        {
+          "turn": 1,
+          "stop_reason": "tool_use"
+        },
+        {
+          "turn": 2,
+          "stop_reason": "end_turn"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLM-2003",
+      "decision": "route",
+      "reason": "eligible_for_standard_routing",
+      "trace": [
+        {
+          "turn": 1,
+          "stop_reason": "tool_use"
+        },
+        {
+          "turn": 2,
+          "stop_reason": "end_turn"
+        }
+      ]
+    },
+    {
+      "claim_id": "CLM-2004",
+      "decision": "escalate",
+      "reason": "missing_required_information",
+      "trace": [
+        {
+          "turn": 1,
+          "stop_reason": "tool_use"
+        },
+        {
+          "turn": 2,
+          "stop_reason": "end_turn"
+        }
+      ]
+    }
+  ]
+}
