@@ -1,0 +1,73 @@
+System: orchestration
+Project path: orchestration/
+Test suite: orchestration/tests/
+
+Verification command:
+python -m pytest -v
+
+Test Result:
+33 passed
+
+Failures: 0
+Errors: 0
+
+Verification Status:
+PASS
+
+Run Evidence:
+Run ID: orchestration-run-001
+
+Cold-state defects:
+6
+
+SQL-selected defects:
+2
+
+Selected defect IDs:
+DEF-1001
+DEF-1002
+
+Hot-state file size:
+144 bytes
+
+Hot-state budget:
+Less than approximately 5 KB
+
+Hot-state budget met:
+True
+
+Recovery threshold:
+1800 seconds
+
+Recovery threshold in minutes:
+30
+
+Recent checkpoint decision:
+resume
+
+Stale checkpoint decision:
+fresh
+
+Main state unchanged by forks:
+True
+
+Fork scratchpads isolated:
+True
+
+The automated suite verifies:
+- SQL-filtered defect retrieval
+- closed defects are excluded
+- defects from unrelated shifts are excluded
+- hot-state construction
+- hot-state size budget
+- warm-state construction
+- crash recovery
+- exact recovery threshold behavior
+- fresh-start behavior for stale checkpoints
+- fork creation
+- fork scratchpad isolation
+- preservation of the main state
+- generated orchestration evidence
+
+Final Summary:
+33 passed, 0 failed, 0 errors
