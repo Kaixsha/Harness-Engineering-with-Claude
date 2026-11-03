@@ -46,3 +46,9 @@ jobs:
 
       - name: Display run artifact
         run: cat artifacts/run-001.json
+
+      - name: Upload run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentic-loop-run-evidence
+          path: agentic-loop/artifacts/run-001.json
