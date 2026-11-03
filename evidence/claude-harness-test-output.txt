@@ -1,0 +1,41 @@
+System: claude-harness
+Project path: claude-harness/
+Test suite: claude-harness/tests/
+
+Verification commands:
+python validate_config.py
+python -m pytest -v
+
+Configuration Validator:
+OK
+
+Validator Exit Code:
+0
+
+Test Result:
+35 passed
+
+Failures: 0
+Errors: 0
+
+Verification Status:
+PASS
+
+The automated suite verifies:
+- required configuration files exist
+- CLAUDE.md imports modular standards
+- API standards exist
+- testing standards exist
+- path-scoped rules contain glob patterns
+- project verification command exists
+- investigation skill uses context: fork
+- investigation skill allows Read
+- investigation skill allows Grep
+- investigation skill allows Glob
+- investigation skill does not allow Write
+- investigation skill does not allow Edit
+- investigation skill does not allow Bash
+- complete configuration passes validation
+
+Final Summary:
+35 passed, 0 failed, 0 errors
