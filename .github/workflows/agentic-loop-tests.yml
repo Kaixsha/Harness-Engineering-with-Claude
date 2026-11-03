@@ -38,3 +38,11 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}/agentic-loop
         run: python -m pytest -v
+
+      - name: Run end-to-end claim demonstration
+        env:
+          PYTHONPATH: ${{ github.workspace }}/agentic-loop
+        run: python -m src.run_claims
+
+      - name: Display run artifact
+        run: cat artifacts/run-001.json
