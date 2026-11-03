@@ -1,0 +1,24 @@
+System: claude-harness
+Project path: claude-harness/
+
+Configuration Validator
+
+Command:
+python validate_config.py
+
+Output:
+OK
+
+Exit code:
+0
+
+Verification Status:
+PASS
+
+Validated configuration includes:
+- CLAUDE.md
+- Modular @path standard imports
+- Path-scoped rules
+- Project-scoped verification command
+- Forked investigation skill
+- Read-only investigation tools
