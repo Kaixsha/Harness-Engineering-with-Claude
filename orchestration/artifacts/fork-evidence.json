@@ -1,0 +1,19 @@
+{
+  "main_shift_id": "SHIFT-A",
+  "main_state_unchanged": true,
+  "fork_a": {
+    "fork_id": "fork-A",
+    "hypothesis": "Recent deployment introduced regression",
+    "scratchpad": [
+      "Investigate recent deployment changes and application behavior."
+    ]
+  },
+  "fork_b": {
+    "fork_id": "fork-B",
+    "hypothesis": "Dependent service instability caused failures",
+    "scratchpad": [
+      "Investigate dependency health and connectivity."
+    ]
+  },
+  "fork_scratchpads_are_isolated": true
+}
