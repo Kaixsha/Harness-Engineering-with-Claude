@@ -1,90 +1,111 @@
-# Reflection Brief
+## System 2: Context Strategy
 
-## System 1: Stop-Reason-Driven Agentic Loop
+### Context Reduction
 
-### Loop Termination
+The context-management strategy is implemented in:
 
-The stop-reason-driven loop is implemented in:
+`context-strategy/src/context_builder.py`
 
-`agentic-loop/src/agentic_loop.py`
+The system separates information into three categories:
 
-The function responsible for the loop is:
+- Critical Case Facts are preserved.
+- Relevant events are retained.
+- Historical information is summarized.
 
-`run_agent()`
+Context budget measurement is implemented in:
 
-The loop examines the `stop_reason` returned for each turn.
-
-When the stop reason is `tool_use`, the system executes the requested tool and continues processing.
-
-When the stop reason is `end_turn`, the system returns the final result and terminates the loop.
-
-This behavior is verified by the automated test suite and by the generated run artifact.
-
-### Anti-Pattern Avoided
-
-The implementation avoids determining completion by searching the model's natural-language response for words such as "done", "finished", or "complete".
-
-Instead, loop control depends on the structured `stop_reason` value.
-
-This makes termination explicit and testable rather than dependent on wording in the model response.
-
-### End-to-End Evidence
-
-The end-to-end demonstration is implemented in:
-
-`agentic-loop/src/run_claims.py`
-
-Run ID:
-
-`agentic-loop-run-001`
-
-The demonstration processes four sample claims:
-
-- `CLM-2001`
-- `CLM-2002`
-- `CLM-2003`
-- `CLM-2004`
-
-Each processed claim terminates with either a `route` or `escalate` decision.
+`context-strategy/src/budget.py`
 
 The generated artifact is:
 
-`agentic-loop/artifacts/run-001.json`
+`context-strategy/artifacts/budget.json`
 
-The artifact also records the turn-by-turn trace. The demonstration trace begins with `tool_use` and terminates with `end_turn`.
+The successful run measured:
 
-### Deterministic Enforcement
+- Raw context: 751 estimated tokens
+- Assembled context: 169 estimated tokens
+- Reduction: 77.5%
+- 50% reduction target met: True
 
-Deterministic claim routing logic is implemented in:
+The token counts use the deterministic approximation defined in
+`estimate_tokens()`, which estimates one token for every four
+characters. These numbers therefore represent the project's
+reproducible token estimate rather than an exact model tokenizer count.
 
-`agentic-loop/src/claims.py`
+### Information Preserved and Summarized
 
-The `route_claim()` function checks required claim information, validates the claim amount, and applies the project's configured escalation threshold.
+Critical information is preserved verbatim in the Case Facts block,
+including the case ID, customer, product, severity, status, and current
+issue.
 
-This provides deterministic enforcement because the routing constraints are evaluated by application code rather than depending only on natural-language model instructions.
+Lower-priority historical information is compressed using
+`summarize_history()` rather than retaining the complete history in
+the assembled context.
 
-The demonstration threshold is defined by:
+Events are filtered by `select_relevant_events()` so that events marked
+as irrelevant are excluded from the assembled context.
 
-`ESCALATION_THRESHOLD = 5000`
+This strategy reduced the estimated context from 751 tokens to 169
+tokens while retaining the information needed by the evaluation.
 
-This value is a rule created for this project demonstration and is not presented as an external claims-industry policy.
+### Answerability Evaluation
+
+Evaluation logic is implemented in:
+
+`context-strategy/src/evaluation.py`
+
+Six evaluation questions are defined in `EVALUATION_QUESTIONS`.
+
+The full assembled context achieved:
+
+**6/6 correct**
+
+This exceeds the required minimum of 5/6.
+
+The evidence is generated in:
+
+`context-strategy/artifacts/evaluation-full.json`
+
+### Case Facts Control Experiment
+
+A control context is created by:
+
+`assemble_control_context()`
+
+The control removes the Case Facts block while retaining the other
+context components.
+
+The control evaluation achieved:
+
+**0/6 correct**
+
+Compared with the full score of 6/6, all six evaluation questions
+regressed:
+
+`Q1, Q2, Q3, Q4, Q5, Q6`
+
+This demonstrates that the Case Facts block contains information
+necessary for answering the evaluation questions and is not simply
+additional context overhead.
+
+The comparison evidence is generated in:
+
+`context-strategy/artifacts/evaluation-comparison.json`
 
 ### Automated Verification
 
-The automated test suite is located under:
+The System 2 automated test suite contains:
 
-`agentic-loop/tests/`
+**30 passing tests**
 
-GitHub Actions runs the tests through:
+The tests verify context construction, Case Facts preservation,
+history summarization, relevant-event filtering, context reduction,
+the 50% budget requirement, six-question evaluation behavior, and
+the Case Facts control regression.
 
-`.github/workflows/agentic-loop-tests.yml`
+The GitHub Actions workflow is:
 
-The successful Project 1 workflow run reports:
+`.github/workflows/context-strategy-tests.yml`
 
-**30 tests passed.**
-
-The test suite verifies more than a single successful demonstration. It checks behaviors including continuation on `tool_use`, termination on `end_turn`, invalid stop reasons, missing termination, claim validation, routing, escalation, and end-to-end trace behavior.
-
-This is stronger than manually inspecting one successful run because the automated suite verifies multiple normal, boundary, and failure conditions.
-
-
+The workflow also generates and uploads the context-strategy evidence
+artifacts.
