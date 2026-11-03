@@ -477,3 +477,220 @@ The GitHub Actions workflow is:
 `.github/workflows/orchestration-tests.yml`
 
 The automated suite verifies recovery boundaries and fork isolation across multiple conditions, which could not be established reliably by inspecting only one successful run.
+
+# Cross-Project Synthesis
+
+## The Three Architectural Layers
+
+### Model Layer
+
+The Model layer is represented most directly by:
+
+`agentic-loop/src/agentic_loop.py`
+
+The `run_agent()` function controls the interaction loop using the structured `stop_reason` returned on each turn.
+
+A `tool_use` stop reason causes tool execution and continuation of the loop, while `end_turn` terminates processing.
+
+The submitted evidence for this behavior includes:
+
+`agentic-loop/artifacts/run-001.json`
+
+The System 1 automated suite reports:
+
+**30 passing tests**
+
+### Harness Layer
+
+The Harness layer is represented by:
+
+`claude-harness/CLAUDE.md`
+
+and the configuration under:
+
+`claude-harness/.claude/`
+
+This layer provides modular project instructions, path-scoped rules, a project-scoped verification command, and the forked investigation skill.
+
+The harness configuration is validated by:
+
+`claude-harness/validate_config.py`
+
+The submitted validator evidence is:
+
+`claude-harness/evidence/validator-output.txt`
+
+The validator result is:
+
+**OK**
+
+with exit code:
+
+**0**
+
+The System 3 automated suite reports:
+
+**35 passing tests**
+
+### Orchestration Layer
+
+The Orchestration layer is represented most directly by:
+
+`orchestration/src/orchestrator.py`
+
+The orchestrator coordinates SQL-filtered defect retrieval, recovery decisions, tiered state, and isolated investigation forks.
+
+Run:
+
+`orchestration-run-001`
+
+processed `SHIFT-A` using **2 SQL-selected defects from a cold-state history containing 6 defects**.
+
+The selected defects were:
+
+- `DEF-1001`
+- `DEF-1002`
+
+The System 4 automated suite reports:
+
+**33 passing tests**
+
+## Deterministic Enforcement Versus Prompt-Based Guidance
+
+The projects distinguish between model guidance and deterministic application enforcement.
+
+A deterministic example is implemented in:
+
+`agentic-loop/src/claims.py`
+
+The `route_claim()` function validates required fields, validates the claim amount, and applies:
+
+`ESCALATION_THRESHOLD = 5000`
+
+Because the routing threshold is evaluated by application code, the outcome does not rely solely on the model following a textual instruction.
+
+Prompt-based guidance appears in the Claude Code harness through files such as:
+
+`claude-harness/CLAUDE.md`
+
+and the modular standards under:
+
+`claude-harness/.claude/standards/`
+
+These files provide instructions and conventions that guide model behavior.
+
+The architectural distinction is that prompt guidance influences how the model should behave, while deterministic application logic is used where the project requires an enforceable and testable rule.
+
+## Context Management Across Systems
+
+Context management appears differently in the Context Strategy and Layer 3 Orchestration systems.
+
+### Context Strategy
+
+The Context Strategy system focuses on reducing the amount of information assembled for model use while preserving answerability.
+
+The submitted budget artifact is:
+
+`context-strategy/artifacts/budget.json`
+
+The measured values were:
+
+- Raw context: **751 estimated tokens**
+- Assembled context: **169 estimated tokens**
+- Reduction: **77.5%**
+
+The full assembled context achieved:
+
+**6/6 correct**
+
+The control context without the Case Facts block achieved:
+
+**0/6 correct**
+
+Therefore, the experiment demonstrates that substantial context reduction was possible while the preserved Case Facts remained important for answering the evaluation questions.
+
+### Orchestration
+
+The orchestration system manages context at the operational-state level rather than primarily at the prompt-assembly level.
+
+Run `orchestration-run-001` started with:
+
+**6 cold-state defects**
+
+and selected:
+
+**2 relevant defects**
+
+through the SQL query for `SHIFT-A`.
+
+The resulting hot-state file was:
+
+**144 bytes**
+
+which remained well below the approximately **5 KB** state budget.
+
+Therefore, the Context Strategy system reduces model-facing information through preservation, filtering, and summarization, while the Orchestration system reduces active operational context through SQL selection and tiered state.
+
+## Crash Recovery and Fork Isolation
+
+Crash-recovery logic is implemented in:
+
+`orchestration/src/recovery.py`
+
+The configured staleness threshold is:
+
+**1800 seconds (30 minutes)**
+
+The evidence demonstrates:
+
+- Recent checkpoint → `resume`
+- Stale checkpoint → `fresh`
+- Missing checkpoint → `fresh`
+
+Forked investigations are implemented through:
+
+`fork_state()`
+
+and:
+
+`investigate_hypotheses()`
+
+Two competing hypotheses are investigated independently:
+
+- Fork A: recent deployment regression
+- Fork B: dependent-service instability
+
+The submitted evidence reports:
+
+`Main state unchanged by forks: True`
+
+and:
+
+`Fork scratchpads isolated: True`
+
+This keeps exploratory investigation state separated from the primary operational state.
+
+## Verification Across All Four Systems
+
+The submitted automated verification results are:
+
+- Agentic Loop: **30 passing tests**
+- Context Strategy: **30 passing tests**
+- Claude Code Harness: **35 passing tests**
+- Layer 3 Orchestration: **33 passing tests**
+
+Total:
+
+**128 passing tests**
+
+The corresponding submitted test evidence files are:
+
+`evidence/agentic-loop-test-output.txt`
+
+`evidence/context-strategy-test-output.txt`
+
+`evidence/claude-harness-test-output.txt`
+
+`evidence/orchestration-test-output.txt`
+
+Automated suites provide stronger verification than inspection of a single successful run because they exercise normal behavior, boundary conditions, error handling, control variants, recovery thresholds, state budgets, and isolation properties across repeatable cases.
