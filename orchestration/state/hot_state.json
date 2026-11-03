@@ -1,0 +1,9 @@
+{
+  "shift_id": "SHIFT-A",
+  "checkpoint": "defects_loaded",
+  "status": "active",
+  "active_defect_ids": [
+    "DEF-1001",
+    "DEF-1002"
+  ]
+}
